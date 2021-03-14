@@ -1,0 +1,10 @@
+
+/.processing
+/venv
+/ve
+/__pycache__
+/.idea
+/*.iml
+/data-out/**.*
+!/data-out/README.md
+/.data-processing
