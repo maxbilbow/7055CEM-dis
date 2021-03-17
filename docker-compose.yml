@@ -1,43 +1,30 @@
 
 version: '2'
-
 services:
-  spark:
-    image: bitnami/spark
-    environment:
-      - SPARK_MODE=master
-      - SPARK_RPC_AUTHENTICATION_ENABLED=no
-      - SPARK_RPC_ENCRYPTION_ENABLED=no
-      - SPARK_LOCAL_STORAGE_ENCRYPTION_ENABLED=no
-      - SPARK_SSL_ENABLED=no
+  spark-master:
+    image: jupyter/pyspark-notebook
     ports:
-      - '8080:8080'
-      - '7077:7077'
-    volumes: 
-      - './:/app'
-  spark-worker-1:
-    image: bitnami/spark
+      - 7077:7077
+      - 8080:8080
+      - 6066:6066
+    command: ["/spark/bin/spark-class", "org.apache.spark.deploy.master.Master"]
+
+  jupyter:
+    image: jupyter/pyspark-notebook
+    ports:
+      - 8888:8888
+    volumes:
+      - ./app/src:/home/jovyan/src
+      - ./app/work:/home/jovyan/work
+      - ./app/data:/home/jovyan/data
+
+  spark-worker:
+    # Example for starting and connecting worker to spark master
+    image: jupyter/pyspark-notebook
+    volumes:
+      - ./worker:/scratch
     environment:
-      - SPARK_MODE=worker
-      - SPARK_MASTER_URL=spark://spark:7077
-      - SPARK_WORKER_MEMORY=1G
-      - SPARK_WORKER_CORES=1
-      - SPARK_RPC_AUTHENTICATION_ENABLED=no
-      - SPARK_RPC_ENCRYPTION_ENABLED=no
-      - SPARK_LOCAL_STORAGE_ENCRYPTION_ENABLED=no
-      - SPARK_SSL_ENABLED=no
-    volumes: 
-      - './:/app'
-  spark-worker-2:
-    image: bitnami/spark
-    environment:
-      - SPARK_MODE=worker
-      - SPARK_MASTER_URL=spark://spark:7077
-      - SPARK_WORKER_MEMORY=1G
-      - SPARK_WORKER_CORES=1
-      - SPARK_RPC_AUTHENTICATION_ENABLED=no
-      - SPARK_RPC_ENCRYPTION_ENABLED=no
-      - SPARK_LOCAL_STORAGE_ENCRYPTION_ENABLED=no
-      - SPARK_SSL_ENABLED=no
-    volumes: 
-      - './:/app'
+      - SPARK_WORKER_DIR=/scratch
+    command: ["/spark/bin/spark-class", "org.apache.spark.deploy.worker.Worker", "spark://spark-master:7077"]
+    depends_on:
+      - spark-master

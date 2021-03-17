@@ -1,7 +1,0 @@
-path:
-  data:
-    in: ./data-in
-    out: ./data-out
-    processing:
-      raw: ./.data-processing/raw
-      ready: ./.data-processing/ready
