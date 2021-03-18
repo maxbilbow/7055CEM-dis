@@ -1,5 +1,5 @@
 
-/app/data/.processed/**.*
+/app/data/.processed/**/**.*
 !/app/data/.proceessed/README.md
 /venv
 /ve

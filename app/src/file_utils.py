@@ -1,9 +1,17 @@
 import shutil
 import os.path
-from os.path import sep
-from src.Logger import getLogger
+import errno
+from os.path import sep, dirname
+from Logger import getLogger
 
 logger = getLogger(__file__)
+
+def make_dirs(path):
+    try:
+        os.makedirs(dirname(path))
+    except OSError as exc: # Guard against race condition
+        if exc.errno != errno.EEXIST:
+            raise
 
 
 def get_filename(path: str) -> str:
