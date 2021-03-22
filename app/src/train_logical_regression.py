@@ -4,6 +4,7 @@ import os
 from pyspark.ml.classification import LogisticRegression
 from pyspark.sql import SparkSession, DataFrame
 from processing.pre_process import PreProcess
+from processing.test import get_accuracy
 
 ROOT = r".."
 DATA_IN = os.path.join(ROOT, "data") #Config.get("path.data.in"))
@@ -33,7 +34,7 @@ def create_model(training_data: DataFrame):
 
     # You can combine paramMaps, which are python dictionaries.
     # Change output column name
-    paramMap2 = {lr.probabilityCol: "myProbability"}  # type: ignore
+    paramMap2 = {lr.probabilityCol: "probability"}  # type: ignore
     paramMapCombined = paramMap.copy()
     paramMapCombined.update(paramMap2)  # type: ignore
 
@@ -51,26 +52,11 @@ def test_model(model: LogisticRegression, test_data: DataFrame):
     # Note that model2.transform() outputs a "myProbability" column instead of the usual
     # 'probability' column since we renamed the lr.probabilityCol parameter previously.
     prediction = model.transform(test_data)
-    result = prediction.select("features", "activity", "myProbability", "prediction") \
-        .collect()
 
-    right = wrong = 0
-    for row in result:
-        if row.activity == row.prediction:
-            right+=1
-        else:
-            wrong+=1
-
-    total = right + wrong
-    percent = round(right * 100 / total)
-    print("Accuracy: %s/%s (%s%%)" % (right, total, percent))
-    return percent
+    return get_accuracy(prediction)
 
 
 def save_model(model, name="lrm.model"):
-    # for row in result:
-    #     print("features=%s, activity=%s -> prob=%s, prediction=%s"
-    #           % (row.features, row.activity, row.myProbability, row.prediction))
 
     path = os.path.join("..", "data", "models", DATA_FOLDER, name)
 

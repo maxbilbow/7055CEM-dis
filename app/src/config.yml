@@ -1,4 +1,4 @@
 path:
   data:
     in: data
-    processed: data/.processed
+    models: data/models
