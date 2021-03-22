@@ -1,6 +1,15 @@
 import numpy as np
+from pyspark.sql import DataFrame
 
-def find_correlation(data, threshold=0.5, remove_negative=False):
+def get_reduced_columns(df: DataFrame, threshold=0.5, remove_negative=False):
+    pandas_df = df.toPandas()
+    print("All Features: %s" % len(pandas_df.columns))
+    reduced_feature_set = _find_correlation(pandas_df, threshold, remove_negative)
+    print("Reduced Features: %s" % len(reduced_feature_set))
+    return list(reduced_feature_set)
+
+
+def _find_correlation(data, threshold: float, remove_negative: bool):
     """
     Given a numeric pd.DataFrame, this will find highly correlated features,
     and return a list of features to remove.
