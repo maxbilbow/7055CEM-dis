@@ -72,7 +72,7 @@ if __name__ == "__main__":
     dataset = spark.read.load(SOURCE_DATASET, format="csv", sep=",", inferSchema=True, header=True)
     dataset.show(1)
 
-    training_data, test_data = PreProcess.create_training_and_test_data(spark, dataset)
+    training_data, test_data = PreProcess.create_training_and_test_data(dataset)
 
     model = create_model(training_data)
     accuracy = test_model(model, test_data)

@@ -1,8 +1,7 @@
 from processing.feature_reduction import get_reduced_columns
 from pyspark.ml.feature import VectorAssembler
-import numpy as np
 
-from pyspark.sql import SparkSession, DataFrame
+from pyspark.sql import DataFrame
 
 VECTOR_COL="features"
 
@@ -10,20 +9,17 @@ VECTOR_COL="features"
 class PreProcess:
 
     @staticmethod
-    def create_training_and_test_data(spark: SparkSession, dataset: DataFrame, columns: list = None):
-        df = PreProcess.create_df_vector(dataset, columns).toPandas()
-        msk = np.random.rand(len(df)) < 0.8
-
-        train = spark.createDataFrame(df[msk])
-
-        test = spark.createDataFrame(df[~msk])
+    def create_training_and_test_data(dataset: DataFrame, columns: list = None):
+        split = PreProcess.create_df_vector(dataset, columns).randomSplit([0.8, 0.2], 1234)
+        train = split[0]
+        test = split[1]
 
         print("Training: %s " % train.count())
         print("Test Data: %s " % test.count())
         return train, test
 
     @staticmethod
-    def create_df_vector(df: DataFrame, columns: list):
+    def create_df_vector(df: DataFrame, columns: list = None):
         if columns is None:
             columns = list(df.drop("activities").toPandas().columns)
 
