@@ -56,9 +56,9 @@ def test_model(model: LogisticRegression, test_data: DataFrame):
     return get_accuracy(prediction)
 
 
-def save_model(model, name="lrm.model"):
+def save_model(model, name="lrm"):
 
-    path = os.path.join("..", "data", "models", DATA_FOLDER, name)
+    path = os.path.join("..", "data", "models", DATA_FOLDER, "%s.model" % name)
 
     model.save(path)
 
@@ -75,8 +75,9 @@ if __name__ == "__main__":
     training_data, test_data = PreProcess.create_training_and_test_data(spark, dataset)
 
     model = create_model(training_data)
-    if test_model(model, test_data) > 0.9:
-        save_model(model, "temp.model")
+    accuracy = test_model(model, test_data)
+    if accuracy > 0.9:
+        save_model(model, "lrm")
         print("Model successfully saved")
     else:
-        print("Model was less than 90% successful")
+        raise Exception("Model was less than 90% successful: %s%%" % accuracy)
