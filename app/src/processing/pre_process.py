@@ -1,75 +1,44 @@
-import pandas as pd
-import os
-import errno
-from config import Config
-from os.path import dirname
-from pyspark.sql import SparkSession
+from processing.feature_reduction import find_correlation
 from pyspark.ml.feature import VectorAssembler
-from pyspark.ml.linalg import Vectors
-from pyspark.ml.classification import LogisticRegression
-from processing.pre_process import create_training_and_test_data
+import numpy as np
 
-ROOT = os.path.join(dirname(__file__), "..", "..")
-DATA_IN = os.path.join(ROOT, Config.get("path.data.in"))
-PRE_PROCESSED = os.path.join(ROOT, Config.get("path.data.processed"))
+from pyspark.sql import SparkSession, DataFrame
+
+VECTOR_COL="features"
+
+class PreProcess:
+    @staticmethod
+    def create_training_and_test_data(spark: SparkSession, dataset: DataFrame):
+        df = create_df_vector(dataset).toPandas()
+        msk = np.random.rand(len(df)) < 0.8
+
+        train = spark.createDataFrame(df[msk])
+
+        test = spark.createDataFrame(df[~msk])
+
+        print("Training: %s " % train.count())
+        print("Test Data: %s " % test.count())
+        return train, test
 
 
-def create_training_and_test_data(path="smartphone-activity", filename="dataset.csv", attributes="attributes.csv", keep_headers=True):
-    source_data_path = os.path.join(
-        DATA_IN,
-        path,
-        filename
-    )
-    attrs_data_path = os.path.join(
-        DATA_IN,
-        path,
-        attributes
-    )
-    training_data_path = os.path.join(
-        PRE_PROCESSED,
-        path,
-        "train-%s" % filename
-    )
-    testing_data_path = os.path.join(
-        PRE_PROCESSED,
-        path,
-        "test-%s" % filename
-    )
-    make_dirs(training_data_path)
+def reduce_feature_set(df: DataFrame):
+    pandas_df = df.toPandas()
+    print("All Features: %s" % len(pandas_df.columns))
+    reduced_feature_set = find_correlation(pandas_df)
+    print("Reduced Features: %s" % len(reduced_feature_set))
+    return list(reduced_feature_set)
 
-    spark = SparkSession \
-        .builder \
-        .appName("Python Spark SQL basic example: Reading CSV file without mentioning schema") \
-        .getOrCreate()
 
-    dataset = spark.read.load(source_data_path, format="csv", sep=",", inferSchema=True, header=True)
-    print("dataset loaded:")
-    dataset.show(10)
-    attrs = spark.read.csv(attrs_data_path, header=True)
-    print("attributes loaded:")
-    attrs.show()
-    featureNames = []
-    for singletonList in attrs.select("name").toPandas().values:
-        for name in singletonList:
-            if name.startswith("feature_"):
-                featureNames.append(name)
-
+def create_df_vector(df: DataFrame):
+    columns: list = reduce_feature_set(df)
     assembler = VectorAssembler(
-        inputCols=featureNames,
-        outputCol="features")
+        inputCols=columns,
+        outputCol=VECTOR_COL)
 
-    training = assembler.transform(dataset)
-    training.show()
-    return dataset
-
-
-
-def make_dirs(path):
-    try:
-        os.makedirs(dirname(path))
-    except OSError as exc: # Guard against race condition
-        if exc.errno != errno.EEXIST:
-            raise
+    df_vector = assembler.transform(df)
+    df_vector = df_vector.select(*[VECTOR_COL, "activity"])
+    return df_vector
 
 
-create_training_and_test_data()
+
+
