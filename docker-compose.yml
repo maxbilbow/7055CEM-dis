@@ -44,14 +44,4 @@ services:
       - ./app/src:/home/jovyan/src
       - ./app/work:/home/jovyan/work
       - ./app/data:/home/jovyan/data
-
-#  spark-worker:
-#    # Example for starting and connecting worker to spark master
-#    image: jupyter/pyspark-notebook
-#    volumes:
-#      - ./worker:/scratch
-#    environment:
-#      - SPARK_WORKER_DIR=/scratch
-#    command: ["/spark/bin/spark-class", "org.apache.spark.deploy.worker.Worker", "spark://spark-master:7077"]
-#    depends_on:
-#      - spark-master
+#      - ./app/examples:/home/jovyan/examples
