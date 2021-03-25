@@ -1,5 +1,9 @@
 from typing import Callable
 
+from pyspark.sql import SparkSession, DataFrame
+
+from config import Config
+
 
 def flatten(list_list: list, predicate: Callable[[object], bool] = lambda o: True) -> list:
     flat_list = []
@@ -9,3 +13,4 @@ def flatten(list_list: list, predicate: Callable[[object], bool] = lambda o: Tru
                 flat_list.append(item)
 
     return flat_list
+

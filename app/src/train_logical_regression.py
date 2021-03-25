@@ -1,17 +1,17 @@
-
 import os
 
 from pyspark.ml.classification import LogisticRegression
-from pyspark.sql import SparkSession, DataFrame
+from pyspark.sql import DataFrame
+
+from config import Config
 from processing.pre_process import PreProcess
 from processing.test import get_accuracy
+import repository.database as db
 
 ROOT = r".."
-DATA_IN = os.path.join(ROOT, "data") #Config.get("path.data.in"))
-DATA_PROCESSED = os.path.join(ROOT, ".processed") #Config.get("path.data.processed"))
-DATA_FOLDER = "smartphone-activity"
-SOURCE_DATASET = os.path.join(DATA_IN, DATA_FOLDER ,"dataset.csv")
-SOURCE_ATTRIBUTES = os.path.join(DATA_IN, DATA_FOLDER ,"attributes.csv")
+DATA_IN = os.path.join(ROOT, Config.get("path.data.in"))
+SOURCE_DATASET = os.path.join(DATA_IN, "dataset.csv")
+MODELS_DIR = os.path.join(ROOT, Config.get("path.data.models"))
 
 
 def create_model(training_data: DataFrame):
@@ -20,7 +20,7 @@ def create_model(training_data: DataFrame):
     # Print out the parameters, documentation, and any default values.
     print("LogisticRegression parameters:\n" + lr.explainParams() + "\n")
 
-    # Learn a LogisticRegression model. This uses the parameters stored in lr.
+    # Learn a LogisticRegression models. This uses the parameters stored in lr.
     model1 = lr.fit(training_data)
 
     print("Model 1 was fit using parameters: ")
@@ -38,7 +38,7 @@ def create_model(training_data: DataFrame):
     paramMapCombined = paramMap.copy()
     paramMapCombined.update(paramMap2)  # type: ignore
 
-    # Now learn a new model using the paramMapCombined parameters.
+    # Now learn a new models using the paramMapCombined parameters.
     # paramMapCombined overrides all parameters set earlier via lr.set* methods.
     model2 = lr.fit(training_data, paramMapCombined)
     print("Model 2 was fit using parameters: ")
@@ -57,17 +57,13 @@ def test_model(model: LogisticRegression, test_data: DataFrame):
 
 
 def save_model(model, name="lrm"):
-
-    path = os.path.join("..", "data", "models", DATA_FOLDER, "%s.model" % name)
+    path = os.path.join(MODELS_DIR, "{}.model".format(name))
 
     model.save(path)
 
 
 if __name__ == "__main__":
-    spark = SparkSession \
-        .builder \
-        .appName("Python Spark SQL basic example: Reading CSV file without mentioning schema") \
-        .getOrCreate()
+    spark = db.create_spark_session()
 
     dataset = spark.read.load(SOURCE_DATASET, format="csv", sep=",", inferSchema=True, header=True)
     dataset.show(1)

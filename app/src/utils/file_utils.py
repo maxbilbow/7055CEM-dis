@@ -15,7 +15,7 @@ def make_dirs(path):
 
 
 def get_filename(path: str) -> str:
-    bits = path.split(sep)
+    bits = path.split("/")
     return bits[len(bits) - 1]
 
 

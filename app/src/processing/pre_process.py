@@ -1,4 +1,3 @@
-from processing.feature_reduction import get_reduced_columns
 from pyspark.ml.feature import VectorAssembler
 
 from pyspark.sql import DataFrame

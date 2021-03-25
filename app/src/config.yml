@@ -1,4 +1,12 @@
 path:
   data:
-    in: data
-    models: data/models
+    in: data/data-in
+    models: .models
+mongodb:
+  credentials: root:password@mongodb
+  port: 27017
+  database:
+    name: smartphone_activity
+    table:
+      data_in: data_in
+      results: results

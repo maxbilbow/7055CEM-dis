@@ -3,5 +3,6 @@ inotify==0.2.10
 pyyaml
 pandas
 sklearn
-matplotlib
-pyspark
+matplotlib==3.3.4
+pyspark==3.1.1
+pymongo==3.11.3
