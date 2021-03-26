@@ -1,4 +1,6 @@
-[Based on](https://github.com/bitnami/bitnami-docker-spark)
+## Data Intensive Systems Coursework Project
+
+Data set used: [Smartphone Activity Study](https://www.apispreadsheets.com/datasets/122)
 
 ```shell
 docker-compose up -d
