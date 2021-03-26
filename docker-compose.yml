@@ -15,7 +15,6 @@ services:
       - 7077:7077
       - 8080:8080
       - 6066:6066
-#    command: ["/spark/bin/spark-class", "org.apache.spark.deploy.master.Master"]
     volumes:
       - ./app/src:/app/src
       - ./app/data:/app/data

@@ -12,7 +12,7 @@ def start():
 
     # compute the classification error on test data.
     accuracy = evaluator.evaluate(prediction)
-    print("Test Accuracy = %g" % accuracy)
+    print("Test Accuracy = {0:.2f}%".format(accuracy * 100))
 
 
 if __name__ == "__main__":
