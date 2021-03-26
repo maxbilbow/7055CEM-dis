@@ -1,10 +1,12 @@
 
-/.processing
+/app/data/.processed/**/**.*
+!/app/data/.proceessed/README.md
 /venv
 /ve
-/__pycache__
+__pycache__
 /.idea
 /*.iml
 /data-out/**.*
 !/data-out/README.md
 /.data-processing
+/app/.*
