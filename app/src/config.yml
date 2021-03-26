@@ -1,12 +1,20 @@
 path:
   data:
-    in: data/data-in
-    models: .models
-mongodb:
-  credentials: root:password@mongodb
-  port: 27017
-  database:
-    name: smartphone_activity
-    table:
-      data_in: data_in
-      results: results
+    in: /app/data/data-in
+    attrs: /app/data/meta/attributes.csv
+    models: /app/.models
+
+database:
+  name: smartphone_activity
+  table:
+    data_in: data_in
+    results: results
+
+  mongodb:
+    credentials: root:password@mongodb
+    port: 27017
+
+  textdb:
+    format: json
+    path: /app/.textdb
+

@@ -1,11 +1,11 @@
 from pymongo import MongoClient
 from config import Config
 
-database_name: str = Config.get("mongodb.database.name")
-data_in_table_name: str = Config.get("mongodb.database.table.data_in")
-results_table_name: str = Config.get("mongodb.database.table.results")
-credentials = Config.get("mongodb.credentials")
-port = Config.get("mongodb.port")
+database_name: str = Config.get("database.name")
+data_in_table_name: str = Config.get("database.table.data_in")
+results_table_name: str = Config.get("database.table.results")
+credentials = Config.get("database.mongodb.credentials")
+port = Config.get("database.mongodb.port")
 
 
 class MongoDb:

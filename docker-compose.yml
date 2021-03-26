@@ -20,6 +20,7 @@ services:
       - ./app/src:/app/src
       - ./app/data:/app/data
       - ./app/.models:/app/.models
+      - ./app/.textdb:/app/.textdb
     depends_on:
       - mongodb
     links:
@@ -42,6 +43,7 @@ services:
       - ./app/src:/app/src
       - ./app/data:/app/data
       - ./app/.models:/app/.models
+      - ./app/.textdb:/app/.textdb
     depends_on:
       - spark
       - mongodb

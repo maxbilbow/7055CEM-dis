@@ -1,7 +1,9 @@
 import yaml
 
 from os.path import dirname
+
 CONFIG_FILE = r"%s/config.yml" % dirname(__file__)
+
 
 class Config:
 
@@ -19,8 +21,3 @@ with open(CONFIG_FILE) as file:
     # The FullLoader parameter handles the conversion from YAML
     # scalar values to Python the dictionary format
     config = yaml.load(file, Loader=yaml.FullLoader)
-
-    print(config)
-
-
-print(Config.get("path.data.in"))
