@@ -1,5 +1,6 @@
 import json
 import traceback
+from abc import abstractmethod
 
 from pyspark.sql import DataFrame, SparkSession
 from pyspark.sql.types import StructType
@@ -19,6 +20,14 @@ class Db:
     data_in_table_name: str = Config.get("database.table.data_in")
     results_table_name: str = Config.get("database.table.results")
 
+    @abstractmethod
+    def write_to(self, df: DataFrame, collection_name):
+        pass
+
+    @abstractmethod
+    def load_data_from(self, collection_name: str) -> DataFrame:
+        pass
+
     def create_spark_session(self):
         if Db.spark_session is not None:
             return Db.spark_session
@@ -32,17 +41,11 @@ class Db:
             .appName("myApp") \
             .getOrCreate()
 
-    def write_to(self, df: DataFrame, collection_name):
-        pass
-
     def write_to_data_in(self, df: DataFrame):
         return self.write_to(df, Db.data_in_table_name)
 
     def write_to_results(self, df: DataFrame):
         return self.write_to(df, Db.results_table_name)
-
-    def load_data_from(self, collection_name: str) -> DataFrame:
-        pass
 
     def load_data_in(self) -> DataFrame:
         return self.load_data_from(Db.data_in_table_name)
@@ -77,15 +80,11 @@ class SparkMongo(Db):
             .getOrCreate()
 
     def write_to(self, df: DataFrame, collection_name: str):
-        try:
-            df.write.format("com.mongodb.spark.sql.DefaultSource") \
-                .mode("append") \
-                .option("database", database_name) \
-                .option("collection", collection_name) \
-                .save()
-        except Exception as e:
-            print("Failed to write to db")
-            print(e)
+        df.write.format("com.mongodb.spark.sql.DefaultSource") \
+            .mode("append") \
+            .option("database", database_name) \
+            .option("collection", collection_name) \
+            .save()
 
 
 class TextDb(Db):
@@ -106,7 +105,7 @@ class TextDb(Db):
         with open("{}/{}_schema.json".format(TextDb._path, collection_name)) as f:
             schema = StructType.fromJson(json.load(f))
             print(schema.simpleString())
-            return self.create_spark_session().read.format(TextDb._format)\
+            return self.create_spark_session().read.format(TextDb._format) \
                 .load(path, schema=schema)
 
 
